@@ -103,7 +103,7 @@ resource "vault_gcp_secret_backend" "gcp_secret_backend" {
 # https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/gcp_secret_roleset
 resource "vault_gcp_secret_roleset" "gcp_secret_roleset" {
   backend      = vault_gcp_secret_backend.gcp_secret_backend.path
-  roleset      = "project_viewer"
+  roleset      = "project_Owner"
   secret_type  = "access_token"
   project      = var.gcp_project_id
   token_scopes = ["https://www.googleapis.com/auth/cloud-platform"]
@@ -112,7 +112,7 @@ resource "vault_gcp_secret_roleset" "gcp_secret_roleset" {
     resource = "//cloudresourcemanager.googleapis.com/projects/${var.gcp_project_id}"
 
     roles = [
-      "roles/viewer",
+      "roles/Owner",
     ]
   }
 
