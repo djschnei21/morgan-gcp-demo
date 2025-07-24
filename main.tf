@@ -12,6 +12,10 @@ terraform {
       source = "hashicorp/tfe"
       version = "0.68.1"
     }
+    vault = {
+      source = "hashicorp/vault"
+      version = "5.1.0"
+    }
   }
 }
 
@@ -25,3 +29,8 @@ provider "hcp" {
 }
 
 provider "tfe" {}
+
+provider "vault" {
+  address = "https://vault-morgan-gcp-demo-public-vault-9febeef3.91f10f5f.z1.hashicorp.cloud:8200"
+  namespace = "admin"
+}
