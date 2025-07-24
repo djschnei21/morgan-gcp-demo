@@ -87,7 +87,6 @@ resource "google_service_account_key" "secrets_engine_key" {
 #
 # https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/gcp_secret_backend
 resource "vault_gcp_secret_backend" "gcp_secret_backend" {
-  namespace = var.vault_namespace
   path      = "gcp"
 
   # WARNING - These values will be written in plaintext in the statefiles for this configuration. 
