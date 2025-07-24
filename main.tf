@@ -26,6 +26,13 @@ variable "gcp_project_id" {
   
 }
 
+variable "vault_namespace" {
+  description = "The Vault namespace where the GCP secrets engine will be created."
+  type        = string
+  default     = "admin"
+  
+}
+
 provider "google" {
   project     = var.gcp_project_id
   region      = "us-east1"
@@ -39,8 +46,10 @@ provider "tfe" {}
 
 provider "vault" {
   address = "https://vault-morgan-gcp-demo-public-vault-9febeef3.91f10f5f.z1.hashicorp.cloud:8200"
-  namespace = "admin"
+  namespace = var.vault_namespace
 }
+
+################ GCP RESOURCES ################
 
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_service_account
 resource "google_service_account" "secrets_engine" {
@@ -68,4 +77,79 @@ resource "google_project_iam_member" "secrets_engine" {
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_service_account_key
 resource "google_service_account_key" "secrets_engine_key" {
   service_account_id = google_service_account.secrets_engine.name
+}
+
+################ END GCP RESOURCES ################
+
+################ HCP VAULT RESOURCES ################
+
+# Creates a policy that will control the Vault permissions
+# available to your Terraform Cloud workspace. Note that
+# tokens must be able to renew and revoke themselves.
+#
+# https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/policy
+resource "vault_policy" "tfc_policy" {
+  name = "tfc-policy"
+
+  policy = <<EOT
+# Allow tokens to query themselves
+path "auth/token/lookup-self" {
+  capabilities = ["read"]
+}
+
+# Allow tokens to renew themselves
+path "auth/token/renew-self" {
+    capabilities = ["update"]
+}
+
+# Allow tokens to revoke themselves
+path "auth/token/revoke-self" {
+    capabilities = ["update"]
+}
+
+# Allow Access to GCP Secrets Engine
+path "/gcp/roleset/${vault_gcp_secret_roleset.gcp_secret_roleset.roleset}/token" {
+    capabilities = ["read"]
+}
+EOT
+}
+
+# Creates an GCP Secret Backend for Vault. GCP secret backends can then issue GCP OAuth token or 
+# Service Account keys, once a role has been added to the backend.
+#
+# https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/gcp_secret_backend
+resource "vault_gcp_secret_backend" "gcp_secret_backend" {
+  namespace = var.vault_namespace
+  path      = "gcp"
+
+  # WARNING - These values will be written in plaintext in the statefiles for this configuration. 
+  # Protect the statefiles for this configuration accordingly!
+  credentials = base64decode(google_service_account_key.secrets_engine_key.private_key)
+
+  depends_on = [
+    google_service_account.secrets_engine,
+    google_project_iam_member.secrets_engine
+  ]
+}
+
+# https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/gcp_secret_roleset
+resource "vault_gcp_secret_roleset" "gcp_secret_roleset" {
+  backend      = vault_gcp_secret_backend.gcp_secret_backend.path
+  roleset      = "project_viewer"
+  secret_type  = "access_token"
+  project      = var.gcp_project_id
+  token_scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+
+  binding {
+    resource = "//cloudresourcemanager.googleapis.com/projects/${var.gcp_project_id}"
+
+    roles = [
+      "roles/viewer",
+    ]
+  }
+
+  depends_on = [
+    google_service_account.secrets_engine,
+    google_project_iam_member.secrets_engine
+  ]
 }
