@@ -19,8 +19,15 @@ terraform {
   }
 }
 
+variable "gcp_project_id" {
+  description = "The GCP project ID where the resources will be created."
+  type        = string
+  default     = "hc-ec2367a30f42472eb1834003fee"
+  
+}
+
 provider "google" {
-  project     = "hc-ec2367a30f42472eb1834003fee"
+  project     = var.gcp_project_id
   region      = "us-east1"
 }
 
