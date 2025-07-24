@@ -3,6 +3,7 @@
 
 provider "vault" {
   address = var.vault_url
+  namespace = var.vault_namespace
 }
 
 # Enables the jwt auth backend in Vault at the given path,
@@ -22,7 +23,6 @@ resource "vault_jwt_auth_backend" "tfc_jwt" {
 #
 # https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/jwt_auth_backend_role
 resource "vault_jwt_auth_backend_role" "tfc_role" {
-  namespace      = var.vault_namespace
   backend        = vault_jwt_auth_backend.tfc_jwt.path
   role_name      = "tfc-role"
   token_policies = [vault_policy.tfc_policy.name]
@@ -74,7 +74,6 @@ EOT
 #
 # https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/gcp_secret_backend
 resource "vault_gcp_secret_backend" "gcp_secret_backend" {
-  namespace = var.vault_namespace
   path      = "gcp"
 
   # WARNING - These values will be written in plaintext in the statefiles for this configuration. 
