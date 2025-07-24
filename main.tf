@@ -82,38 +82,6 @@ resource "google_service_account_key" "secrets_engine_key" {
 ################ END GCP RESOURCES ################
 
 ################ HCP VAULT RESOURCES ################
-
-# Creates a policy that will control the Vault permissions
-# available to your Terraform Cloud workspace. Note that
-# tokens must be able to renew and revoke themselves.
-#
-# https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/policy
-resource "vault_policy" "tfc_policy" {
-  name = "tfc-policy"
-
-  policy = <<EOT
-# Allow tokens to query themselves
-path "auth/token/lookup-self" {
-  capabilities = ["read"]
-}
-
-# Allow tokens to renew themselves
-path "auth/token/renew-self" {
-    capabilities = ["update"]
-}
-
-# Allow tokens to revoke themselves
-path "auth/token/revoke-self" {
-    capabilities = ["update"]
-}
-
-# Allow Access to GCP Secrets Engine
-path "/gcp/roleset/${vault_gcp_secret_roleset.gcp_secret_roleset.roleset}/token" {
-    capabilities = ["read"]
-}
-EOT
-}
-
 # Creates an GCP Secret Backend for Vault. GCP secret backends can then issue GCP OAuth token or 
 # Service Account keys, once a role has been added to the backend.
 #
