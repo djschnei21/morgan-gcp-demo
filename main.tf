@@ -2,11 +2,15 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "~> 6.45.0"
+      version = "6.45.0"
     }
     hcp = {
       source  = "hashicorp/hcp"
-      version = "~> 0.109.0"
+      version = "0.109.0"
+    }
+    tfe = {
+      source = "hashicorp/tfe"
+      version = "0.68.1"
     }
   }
 }
@@ -19,3 +23,5 @@ provider "google" {
 provider "hcp" {
   project_id = "f1fc24b1-4dbb-44e9-a632-dc130651e59e"
 }
+
+provider "tfe" {}
