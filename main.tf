@@ -111,7 +111,7 @@ resource "vault_gcp_secret_roleset" "gcp_secret_roleset" {
     resource = "//cloudresourcemanager.googleapis.com/projects/${var.gcp_project_id}"
 
     roles = [
-      "roles/Owner",
+      "roles/owner",
     ]
   }
 
