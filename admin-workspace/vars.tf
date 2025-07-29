@@ -3,6 +3,12 @@
 
 # Variables for TFE/TFC
 
+variable "create_workspace" {
+  type        = bool
+  default     = false
+  description = "Set to false to skip creating the workspace"
+}
+
 variable "tfc_hostname" {
   type        = string
   default     = "app.terraform.io"
