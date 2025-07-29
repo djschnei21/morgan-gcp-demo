@@ -29,6 +29,7 @@ resource "tfe_workspace" "my_workspace" {
 #
 # https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable
 resource "tfe_variable" "enable_vault_provider_auth" {
+  count = var.create_workspace ? 1 : 0
   workspace_id = tfe_workspace.my_workspace[count.index].id
 
   key      = "TFC_VAULT_PROVIDER_AUTH"
@@ -39,6 +40,7 @@ resource "tfe_variable" "enable_vault_provider_auth" {
 }
 
 resource "tfe_variable" "tfc_vault_addr" {
+  count = var.create_workspace ? 1 : 0
   workspace_id = tfe_workspace.my_workspace[count.index].id
 
   key       = "TFC_VAULT_ADDR"
@@ -50,6 +52,7 @@ resource "tfe_variable" "tfc_vault_addr" {
 }
 
 resource "tfe_variable" "tfc_vault_role" {
+  count = var.create_workspace ? 1 : 0
   workspace_id = tfe_workspace.my_workspace[count.index].id
 
   key      = "TFC_VAULT_RUN_ROLE"
@@ -60,6 +63,7 @@ resource "tfe_variable" "tfc_vault_role" {
 }
 
 resource "tfe_variable" "tfc_vault_namespace" {
+  count = var.create_workspace ? 1 : 0
   workspace_id = tfe_workspace.my_workspace[count.index].id
 
   key      = "TFC_VAULT_NAMESPACE"
@@ -70,6 +74,7 @@ resource "tfe_variable" "tfc_vault_namespace" {
 }
 
 resource "tfe_variable" "enable_gcp_provider_auth" {
+  count = var.create_workspace ? 1 : 0
   workspace_id = tfe_workspace.my_workspace[count.index].id
 
   key      = "TFC_VAULT_BACKED_GCP_AUTH"
@@ -80,6 +85,7 @@ resource "tfe_variable" "enable_gcp_provider_auth" {
 }
 
 resource "tfe_variable" "tfc_gcp_mount_path" {
+  count = var.create_workspace ? 1 : 0
   workspace_id = tfe_workspace.my_workspace[count.index].id
 
   key      = "TFC_VAULT_BACKED_GCP_MOUNT_PATH"
@@ -90,6 +96,7 @@ resource "tfe_variable" "tfc_gcp_mount_path" {
 }
 
 resource "tfe_variable" "tfc_gcp_auth_type" {
+  count = var.create_workspace ? 1 : 0
   workspace_id = tfe_workspace.my_workspace[count.index].id
 
   key      = "TFC_VAULT_BACKED_GCP_AUTH_TYPE"
@@ -100,6 +107,7 @@ resource "tfe_variable" "tfc_gcp_auth_type" {
 }
 
 resource "tfe_variable" "tfc_gcp_run_vault_roleset" {
+  count = var.create_workspace ? 1 : 0
   workspace_id = tfe_workspace.my_workspace[count.index].id
 
   key      = "TFC_VAULT_BACKED_GCP_RUN_VAULT_ROLESET"
@@ -108,50 +116,3 @@ resource "tfe_variable" "tfc_gcp_run_vault_roleset" {
 
   description = "Id of the GCP roleset the run will assume."
 }
-
-# The following variables are optional; uncomment the ones you need!
-
-# resource "tfe_variable" "tfc_vault_auth_path" {
-#   workspace_id = tfe_workspace.my_workspace[count.index].id
-
-#   key      = "TFC_VAULT_AUTH_PATH"
-#   value    = var.jwt_backend_path
-#   category = "env"
-
-#   description = "The path where the jwt auth backend is mounted, if not using the default"
-# }
-
-# resource "tfe_variable" "tfc_vault_audience" {
-#   workspace_id = tfe_workspace.my_workspace[count.index].id
-
-#   key      = "TFC_VAULT_WORKLOAD_IDENTITY_AUDIENCE"
-#   value    = var.tfc_vault_audience
-#   category = "env"
-
-#   description = "The value to use as the audience claim in run identity tokens"
-# }
-
-# The following is an example of the naming format used to define variables for
-# additional configurations. Additional required configuration values must also
-# be supplied in this same format, as well as any desired optional configuration
-# values.
-#
-# Additional configurations can be used to uniquely authenticate multiple aliases
-# of the same provider in a workspace, with different roles/permissions in different
-# accounts or regions.
-#
-# See https://developer.hashicorp.com/terraform/cloud-docs/workspaces/dynamic-provider-credentials/specifying-multiple-configurations
-# for more details on specifying multiple configurations.
-#
-# See https://developer.hashicorp.com/terraform/cloud-docs/workspaces/dynamic-provider-credentials/vault-backed/gcp-configuration#specifying-multiple-configurations
-# for specific requirements and details for Vault-backed GCP.
-
-# resource "tfe_variable" "enable_gcp_provider_auth_other_config" {
-#   workspace_id = tfe_workspace.my_workspace[count.index].id
-
-#   key      = "TFC_VAULT_BACKED_GCP_AUTH_other_config"
-#   value    = "true"
-#   category = "env"
-
-#   description = "Enable the Vault Secrets Engine integration for GCP for an additional configuration named other_config."
-# }
