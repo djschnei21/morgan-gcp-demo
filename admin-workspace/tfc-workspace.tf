@@ -19,7 +19,6 @@ data "tfe_project" "tfc_project" {
 # https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/workspace
 resource "tfe_workspace" "my_workspace" {
   count = var.create_workspace ? 1 : 0
-  force_delete = true
   name         = var.tfc_workspace_name
   organization = var.tfc_organization_name
   project_id   = data.tfe_project.tfc_project.id
