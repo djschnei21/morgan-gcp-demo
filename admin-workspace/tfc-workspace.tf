@@ -22,6 +22,12 @@ resource "tfe_workspace" "my_workspace" {
   name         = var.tfc_workspace_name
   organization = var.tfc_organization_name
   project_id   = data.tfe_project.tfc_project.id
+  working_directory = "consumer-workspace"
+  vcs_repo {
+    branch             = "main"
+    identifier         = "djschnei21/morgan-gcp-demo"
+    oauth_token_id     = "ot-95PZayu7N11cQW7H"
+  }
 }
 
 # The following variables must be set to allow runs
