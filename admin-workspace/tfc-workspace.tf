@@ -23,6 +23,7 @@ resource "tfe_workspace" "my_workspace" {
   organization = var.tfc_organization_name
   project_id   = data.tfe_project.tfc_project.id
   working_directory = "consumer-workspace"
+  queue_all_runs = false
   vcs_repo {
     branch             = "main"
     identifier         = "djschnei21/morgan-gcp-demo"
