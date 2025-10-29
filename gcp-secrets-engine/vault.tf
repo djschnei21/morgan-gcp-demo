@@ -1,6 +1,5 @@
-provider "vault" {
-  address = var.vault_address
-}
+provider "vault" {}
+
 
 resource "vault_namespace" "wif_namespace" {
   path        = "gcp_wif"
@@ -36,7 +35,7 @@ resource "vault_gcp_secret_backend" "plugin_wif" {
   max_lease_ttl_seconds      = 60 * 60 * 2 # 2 hours
 }
 
-resource "vault_gcp_secret_roleset" "token_roleset" {
+resource "vault_gcp_secret_roleset" "viewer_token_roleset" {
   namespace = vault_namespace.wif_namespace.path_fq
   backend      = vault_gcp_secret_backend.plugin_wif.path
   roleset      = "project_viewer_token"
@@ -48,6 +47,22 @@ resource "vault_gcp_secret_roleset" "token_roleset" {
     resource = "//cloudresourcemanager.googleapis.com/projects/${var.gcp_project_id}"
     roles = [
       "roles/viewer",
+    ]
+  }
+}
+
+resource "vault_gcp_secret_roleset" "owner_token_roleset" {
+  namespace = vault_namespace.wif_namespace.path_fq
+  backend      = vault_gcp_secret_backend.plugin_wif.path
+  roleset      = "project_owner_token"
+  secret_type  = "access_token"
+  project      = var.gcp_project_id
+  token_scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+
+  binding {
+    resource = "//cloudresourcemanager.googleapis.com/projects/${var.gcp_project_id}"
+    roles = [
+      "roles/owner",
     ]
   }
 }

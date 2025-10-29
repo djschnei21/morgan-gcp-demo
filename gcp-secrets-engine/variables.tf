@@ -21,12 +21,6 @@ variable "app_prefix" {
   default     = "vault-plugin-wif"
 }
 
-variable "vault_address" {
-  type = string
-  description = "Vault URL"
-  default = "https://vault-cluster-public-vault-bc651c7f.99c89f97.z1.hashicorp.cloud:8200"
-}
-
 variable "activate_apis" {
   description = "The list of apis to activate within the project"
   type        = list(string)
