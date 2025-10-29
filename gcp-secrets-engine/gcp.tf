@@ -3,7 +3,7 @@ provider "google" {
 }
 
 locals {
-  oidc_base_url = "${var.public_oidc_issuer_url}/v1/${data.vault_namespace.current.id}${vault_namespace.wif_namespace.path_fq}/identity/oidc/plugins"
+  oidc_base_url = "${var.public_oidc_issuer_url}/v1/${vault_namespace.wif_namespace.id}identity/oidc/plugins"
 }
 
 resource "random_id" "vault_plugin_wif_id" {

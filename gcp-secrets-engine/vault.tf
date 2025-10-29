@@ -5,8 +5,6 @@ resource "vault_namespace" "wif_namespace" {
   path        = "gcp_wif"
 }
 
-data "vault_namespace" "current" {}
-
 locals {
   identity_token_audience = "https://iam.googleapis.com/${google_iam_workload_identity_pool.vault_plugin_wif_pool.name}/providers/${var.app_prefix}-provider"
 }
