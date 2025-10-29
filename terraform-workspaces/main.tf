@@ -136,3 +136,32 @@ resource "tfe_workspace" "direct" {
 }
 
 ### DIRECT WORKSPACE VARIABLES ###
+resource "tfe_variable" "enable_direct_gcp_provider_auth" {
+  workspace_id = tfe_workspace.direct.id
+  key      = "TFC_GCP_PROVIDER_AUTH"
+  value    = "true"
+  category = "env"
+
+  description = "Enable the GCP provider authentication."
+}
+
+resource "tfe_variable" "direct_gcp_run_service_account_email" {
+  workspace_id = tfe_workspace.direct.id
+
+  key      = "TFC_GCP_RUN_SERVICE_ACCOUNT_EMAIL"
+  value    = "hcp-tf-wif-sa-c017@hashicorp-demos-476611.iam.gserviceaccount.com"
+  category = "env"
+
+  description = "The Service Account email to use for GCP provider authentication."
+}
+
+resource "tfe_variable" "direct_gcp_workload_provider_name" {
+  workspace_id = tfe_workspace.direct.id
+
+  key      = "TFC_GCP_WORKLOAD_PROVIDER_NAME"
+  value    = "projects/585950547917/locations/global/workloadIdentityPools/hcp-tf-wif-pool-c017/providers/hcp-tf-wif-provider"
+  category = "env"
+
+  description = "The Workload Identity Provider to use for GCP provider authentication."
+  
+}
