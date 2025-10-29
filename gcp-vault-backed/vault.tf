@@ -64,3 +64,96 @@ resource "vault_gcp_secret_roleset" "owner_token_roleset" {
     ]
   }
 }
+
+resource "vault_jwt_auth_backend" "tfc_jwt" {
+  namespace = vault_namespace.wif_namespace.path_fq
+  path               = var.jwt_backend_path
+  type               = "jwt"
+  oidc_discovery_url = "https://${var.tfc_hostname}"
+  bound_issuer       = "https://${var.tfc_hostname}"
+}
+
+resource "vault_jwt_auth_backend_role" "tfc_role_plan" {
+  namespace = vault_namespace.wif_namespace.path_fq
+  backend        = vault_jwt_auth_backend.tfc_jwt.path
+  role_name      = "tfc-role-plan"
+  token_policies = [vault_policy.tfc_policy_plan.name]
+
+  bound_audiences   = [var.tfc_vault_audience]
+  bound_claims_type = "glob"
+  bound_claims = {
+    sub = "organization:${var.tfc_organization_name}:project:${var.tfc_project_name}:workspace:*:run_phase:plan"
+  }
+  user_claim = "terraform_full_workspace"
+  role_type  = "jwt"
+  token_ttl  = 1200
+}
+
+resource "vault_jwt_auth_backend_role" "tfc_role_apply" {
+  namespace = vault_namespace.wif_namespace.path_fq
+  backend        = vault_jwt_auth_backend.tfc_jwt.path
+  role_name      = "tfc-role-apply"
+  token_policies = [vault_policy.tfc_policy_apply.name]
+
+  bound_audiences   = [var.tfc_vault_audience]
+  bound_claims_type = "glob"
+  bound_claims = {
+    sub = "organization:${var.tfc_organization_name}:project:${var.tfc_project_name}:workspace:*:run_phase:apply"
+  }
+  user_claim = "terraform_full_workspace"
+  role_type  = "jwt"
+  token_ttl  = 1200
+}
+
+resource "vault_policy" "tfc_policy_plan" {
+  namespace = vault_namespace.wif_namespace.path_fq
+  name = "tfc-policy-plan"
+
+  policy = <<EOT
+# Allow tokens to query themselves
+path "auth/token/lookup-self" {
+  capabilities = ["read"]
+}
+
+# Allow tokens to renew themselves
+path "auth/token/renew-self" {
+    capabilities = ["update"]
+}
+
+# Allow tokens to revoke themselves
+path "auth/token/revoke-self" {
+    capabilities = ["update"]
+}
+
+# Allow Access to GCP Secrets Engine
+path "gcp/roleset/${vault_gcp_secret_roleset.viewer_token_roleset.roleset}/token" {
+    capabilities = ["read"]
+}
+EOT
+}
+
+resource "vault_policy" "tfc_policy_apply" {
+  namespace = vault_namespace.wif_namespace.path_fq
+  name = "tfc-policy-apply"
+
+  policy = <<EOT
+# Allow tokens to query themselves
+path "auth/token/lookup-self" {
+  capabilities = ["read"]
+}
+
+# Allow tokens to renew themselves
+path "auth/token/renew-self" {
+    capabilities = ["update"]
+}
+
+# Allow tokens to revoke themselves
+path "auth/token/revoke-self" {
+    capabilities = ["update"]
+}
+  
+path "/gcp/roleset/${vault_gcp_secret_roleset.owner_token_roleset.roleset}/token" {
+    capabilities = ["read"]
+}
+EOT
+}
