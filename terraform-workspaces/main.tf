@@ -165,3 +165,14 @@ resource "tfe_variable" "direct_gcp_workload_provider_name" {
   description = "The Workload Identity Provider to use for GCP provider authentication."
   
 }
+
+resource "tfe_variable" "direct_gcp_workload_identity_audience" {
+  workspace_id = tfe_workspace.direct.id
+
+  key      = "TFC_GCP_WORKLOAD_IDENTITY_AUDIENCE"
+  value    = "HCP_TERRAFORM_WORKLOAD_IDENTITY"
+  category = "env"
+
+  description = "The Workload Identity Audience to use for GCP provider authentication."
+  
+}
