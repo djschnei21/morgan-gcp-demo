@@ -27,12 +27,6 @@ variable "vault_address" {
   default = "https://vault-cluster-public-vault-bc651c7f.99c89f97.z1.hashicorp.cloud:8200"
 }
 
-variable "vault_namespace_id" {
-  type        = string
-  description = "Vault namespace ID, not the name or path."
-  default     = "admin"
-}
-
 variable "activate_apis" {
   description = "The list of apis to activate within the project"
   type        = list(string)

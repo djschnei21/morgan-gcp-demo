@@ -3,10 +3,8 @@ provider "google" {
 }
 
 locals {
-  oidc_base_url = data.vault_namespace.current.id == "/" ? "${vault_identity_oidc.issuer_url.issuer}/v1/identity/oidc/plugins" : "${vault_identity_oidc.issuer_url.issuer}/v1/${data.vault_namespace.current.id}identity/oidc/plugins"
+  oidc_base_url = "${var.public_oidc_issuer_url}/v1/${data.vault_namespace.current.id}${vault_namespace.wif_namespace.path_fq}/identity/oidc/plugins"
 }
-
-data "vault_namespace" "current" {}
 
 resource "random_id" "vault_plugin_wif_id" {
   byte_length = 2
@@ -36,7 +34,7 @@ resource "google_iam_workload_identity_pool_provider" "vault_plugin_wif_provider
     issuer_uri        = local.oidc_base_url
     allowed_audiences = [local.identity_token_audience]
   }
-  attribute_condition = "assertion.sub == \"plugin-identity:${var.vault_namespace_id}:secret:${vault_gcp_secret_backend.plugin_wif.accessor}\""
+  attribute_condition = "assertion.sub == \"plugin-identity:${vault_namespace.wif_namespace.namespace_id}:secret:${vault_gcp_secret_backend.plugin_wif.accessor}\""
 }
 
 
@@ -48,7 +46,7 @@ resource "google_service_account" "vault_plugin_wif" {
 resource "google_service_account_iam_member" "vault_plugin_wif_member" {
   service_account_id = google_service_account.vault_plugin_wif.name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principal://iam.googleapis.com/${google_iam_workload_identity_pool.vault_plugin_wif_pool.name}/subject/plugin-identity:${var.vault_namespace_id}:secret:${vault_gcp_secret_backend.plugin_wif.accessor}"
+  member             = "principal://iam.googleapis.com/${google_iam_workload_identity_pool.vault_plugin_wif_pool.name}/subject/plugin-identity:${vault_namespace.wif_namespace.namespace_id}:secret:${vault_gcp_secret_backend.plugin_wif.accessor}"
 }
 
 
