@@ -20,13 +20,18 @@ resource "google_iam_workload_identity_pool_provider" "hcp_tf_wif_provider" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.hcp_tf_wif_pool.workload_identity_pool_id
   workload_identity_pool_provider_id = "${var.app_prefix}-provider"
   attribute_mapping = {
-    "google.subject"                 = "assertion.sub"
+    "google.subject"                         = "assertion.sub"
+    "attribute.terraform_organization_id"    = "assertion.terraform_organization_id"
+    "attribute.terraform_project_id"         = "assertion.terraform_project_id"
+    "attribute.terraform_workspace_id"       = "assertion.terraform_workspace_id"
+    "attribute.terraform_workspace_name"     = "assertion.terraform_workspace_name"
+    "attribute.terraform_run_phase"          = "assertion.terraform_run_phase"
   }
   oidc {
     issuer_uri        = var.public_oidc_issuer_url
     allowed_audiences = ["HCP_TERRAFORM_WORKLOAD_IDENTITY"]
   }
-  attribute_condition = "assertion.sub.startsWith(\"organization:${var.tfc_organization_name}:project:${var.tfc_project_name}\")"
+  attribute_condition = "assertion.sub.startsWith(\"organization:${var.tfc_organization_name}\")"
 }
 
 
@@ -38,13 +43,7 @@ resource "google_service_account" "hcp_tf_wif" {
 resource "google_service_account_iam_member" "vault_plugin_wif_member_plan" {
   service_account_id = google_service_account.hcp_tf_wif.name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principal://iam.googleapis.com/projects/585950547917/locations/global/workloadIdentityPools/hcp-tf-wif-pool-c017/subject/organization:djs-tfcb:project:morgan-gcp-demo:workspace:direct:run_phase:plan"
-}
-
-resource "google_service_account_iam_member" "vault_plugin_wif_member_apply" {
-  service_account_id = google_service_account.hcp_tf_wif.name
-  role               = "roles/iam.workloadIdentityUser"
-  member             = "principal://iam.googleapis.com/projects/585950547917/locations/global/workloadIdentityPools/hcp-tf-wif-pool-c017/subject/organization:djs-tfcb:project:morgan-gcp-demo:workspace:direct:run_phase:apply"
+  member             = "principalSet://iam.googleapis.com/projects/585950547917/locations/global/workloadIdentityPools/hcp-tf-wif-pool-c017/attribute.terraform_workspace_name/direct"
 }
 
 resource "google_project_iam_custom_role" "hcp_tf_wif_gcp_secret" {
