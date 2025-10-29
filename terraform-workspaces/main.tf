@@ -1,17 +1,11 @@
 provider "tfe" {}
 
-# Data source used to grab the project under which a workspace will be created.
-#
-# https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/data-sources/project
 data "tfe_project" "tfc_project" {
   name         = var.tfc_project_name
   organization = var.tfc_organization_name
 }
 
-# Runs in this workspace will be automatically authenticated
-# to Vault with the permissions set in the Vault policy.
-#
-# https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/workspace
+### VAULT BACKED WORKSPACE ###
 resource "tfe_workspace" "vault_backed" {
   name         = "vault-backed"
   organization = var.tfc_organization_name
@@ -25,10 +19,7 @@ resource "tfe_workspace" "vault_backed" {
   }
 }
 
-# The following variables must be set to allow runs
-# to authenticate to GCP.
-#
-# https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable
+### VAULT BACKED WORKSPACE VARIABLES ###
 resource "tfe_variable" "enable_vault_provider_auth" {
   workspace_id = tfe_workspace.vault_backed.id
 
@@ -129,3 +120,19 @@ resource "tfe_variable" "tfc_gcp_apply_vault_roleset" {
 
   description = "Id of the GCP roleset the apply will assume."
 }
+
+### DIRECT WORKSPACE ###
+resource "tfe_workspace" "direct" {
+  name         = "direct"
+  organization = var.tfc_organization_name
+  project_id   = data.tfe_project.tfc_project.id
+  working_directory = "terraform-workspaces/direct"
+  queue_all_runs = false
+  vcs_repo {
+    branch             = "main"
+    identifier         = "djschnei21/morgan-gcp-demo"
+    oauth_token_id     = "ot-95PZayu7N11cQW7H"
+  }
+}
+
+### DIRECT WORKSPACE VARIABLES ###

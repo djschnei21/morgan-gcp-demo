@@ -49,7 +49,6 @@ resource "google_service_account_iam_member" "vault_plugin_wif_member" {
   member             = "principal://iam.googleapis.com/${google_iam_workload_identity_pool.vault_plugin_wif_pool.name}/subject/plugin-identity:${vault_namespace.wif_namespace.namespace_id}:secret:${vault_gcp_secret_backend.plugin_wif.accessor}"
 }
 
-
 resource "google_project_iam_custom_role" "vault_plugin_wif_gcp_secret" {
   role_id     = "VaultGCPSecretsEngineRole"
   title       = "Vault GCP Secrets Engine Role"
